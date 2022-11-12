@@ -7,12 +7,15 @@ import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.*;
+import priv.pront.yygh.common.exception.YyghException;
 import priv.pront.yygh.common.result.Result;
+import priv.pront.yygh.common.util.MD5;
 import priv.pront.yygh.hosp.service.HospitalSetService;
 import priv.pront.yygh.model.hosp.HospitalSet;
 import priv.pront.yygh.vo.hosp.HospitalSetQueryVo;
 
 import java.util.List;
+import java.util.Random;
 
 /**
  * @Description:
@@ -73,12 +76,77 @@ public class HospitalSetController {
     }
 
 
-//    添加医院设置
+    @ApiOperation("添加医院设置")
+    @PostMapping("saveHospitalSet")
+    public Result saveHospitalSet(@RequestBody HospitalSet hospitalSet) {
+//        设置状态 1 使用0 不能使用
+        hospitalSet.setStatus(1);
+
+//        签名密钥
+        Random random = new Random();
+        hospitalSet.setSignKey(MD5.encrypt(System.currentTimeMillis() + "" + random.nextInt(1000)));
+
+//        调用service
+        boolean save = hospitalSetService.save(hospitalSet);
+        if (save) {
+            return Result.ok();
+        } else {
+            return Result.fail();
+        }
+    }
+
+    @ApiOperation("根据id获取医院设置")
+    @GetMapping("getHospitalSet/{id}")
+    public Result getHospitalSet(@PathVariable Long id) {
+
+        try {
+            HospitalSet hospitalSetServiceById = hospitalSetService.getById(id);
+            return Result.ok(hospitalSetServiceById);
+        } catch (Exception e) {
+            throw new YyghException("失败", 201);
+        }
+    }
+
+    @ApiOperation("修改医院设置")
+    @PostMapping("updateHospitalSet")
+    public Result updateHospitalSet(@RequestBody HospitalSet hospitalSet) {
+        boolean flag = hospitalSetService.updateById(hospitalSet);
+        if (flag) {
+            return Result.ok();
+        } else {
+            return Result.fail();
+        }
+    }
+
+    @ApiOperation("批量删除医院设置")
+    @DeleteMapping("batchRemove")
+    public Result batchRemoveHospitalSet(@RequestBody List<Long> idList) {
+        hospitalSetService.removeByIds(idList);
+        return Result.ok();
+    }
 
 
-//    根据id获取医院设置
+    @ApiOperation("医院设置锁定和解锁")
+    @PutMapping("lockHospitalSet/{id}/{status}")
+    public Result lockHospitalSet(@PathVariable Long id, @PathVariable Integer status) {
+//        先根据id查询出医院设置信息
+        HospitalSet hospitalSet = hospitalSetService.getById(id);
+//        设置状态
+        hospitalSet.setStatus(status);
+//        调用方法
+        hospitalSetService.updateById(hospitalSet);
+        return Result.ok();
+    }
 
-//    修改医院设置
 
-//    批量删除医院设置
+    @ApiOperation("发送签名密钥")
+    @PutMapping("sendKey/{id}")
+    public Result sendKey(@PathVariable Long id) {
+        HospitalSet hospitalSet = hospitalSetService.getById(id);
+        String signKey = hospitalSet.getSignKey();
+        String hoscode = hospitalSet.getHoscode();
+//        TODO 发送短信
+        return Result.ok();
+
+    }
 }
