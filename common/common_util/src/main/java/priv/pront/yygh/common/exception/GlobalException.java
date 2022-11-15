@@ -2,19 +2,16 @@ package priv.pront.yygh.common.exception;
 
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
-import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import priv.pront.yygh.common.result.Result;
 
 
 /**
  * @Description: 全局异常统一处理
- * @Author: pront
+ * @author  pront
  * @Time:2022-11-12 15:01
  */
-//
-//@ControllerAdvice
-//@ResponseBody
+@ControllerAdvice
 @RestControllerAdvice
 public class GlobalException {
 
