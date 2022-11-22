@@ -8,6 +8,7 @@ import priv.pront.yygh.cmn.service.DictService;
 import priv.pront.yygh.common.result.Result;
 import priv.pront.yygh.model.cmn.Dict;
 
+import javax.servlet.http.HttpServletResponse;
 import java.util.List;
 
 /**
@@ -15,7 +16,7 @@ import java.util.List;
  * @Author: pront
  * @Time:2022-11-17 17:15
  */
-@Api(value="数据字典接口")
+@Api(value = "数据字典接口")
 @RestController
 @RequestMapping("/admin/cmn/dict")
 @CrossOrigin
@@ -24,10 +25,17 @@ public class DictController {
     @Autowired
     private DictService dictService;
 
-    @ApiOperation(value="根据数据id查询子数据列表")
+    @ApiOperation(value = "根据数据id查询子数据列表")
     @GetMapping("findChildData/{id}")
-    public Result findChildData(@PathVariable Long id){
-        List<Dict>list =  dictService.findChildData(id);
+    public Result findChildData(@PathVariable Long id) {
+        List<Dict> list = dictService.findChildData(id);
         return Result.ok(list);
+    }
+
+
+    @ApiOperation(value = "导出数据字典接口")
+    @GetMapping("exportData")
+    public void exportDict(HttpServletResponse response){
+        dictService.exportDictData(response);
     }
 }
