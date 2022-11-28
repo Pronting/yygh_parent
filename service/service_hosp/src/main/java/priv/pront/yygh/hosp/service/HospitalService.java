@@ -1,7 +1,9 @@
 package priv.pront.yygh.hosp.service;
 
 import io.swagger.annotations.ApiOperation;
+import org.springframework.data.domain.Page;
 import priv.pront.yygh.model.hosp.Hospital;
+import priv.pront.yygh.vo.hosp.HospitalQueryVo;
 
 import java.util.Map;
 
@@ -20,4 +22,9 @@ public interface HospitalService {
 
     @ApiOperation("根据医院编号查询医院信息")
     Hospital getByHoscode(String hoscode);
+
+
+    @ApiOperation("医院列表，查询带分页")
+    Page<Hospital> selectHospitalPage(Integer page, Integer limit, HospitalQueryVo hospitalQueryVo);
+
 }

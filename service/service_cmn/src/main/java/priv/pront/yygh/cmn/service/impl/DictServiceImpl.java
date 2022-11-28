@@ -5,6 +5,7 @@ import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;
+import org.springframework.util.StringUtils;
 import priv.pront.yygh.cmn.mapper.DictMapper;
 import priv.pront.yygh.cmn.service.DictService;
 import priv.pront.yygh.model.cmn.Dict;
@@ -78,6 +79,33 @@ public class DictServiceImpl extends ServiceImpl<DictMapper, Dict> implements Di
         }
 
 
+    }
+
+    @Override
+    public String getDictName(String dictCode, String value) {
+//        如果dictCode本身为空，直接根据value查询
+        if (StringUtils.isEmpty(dictCode)) {
+//            直接根据value查询
+            QueryWrapper<Dict> wrapper = new QueryWrapper<>();
+            wrapper.eq("value", value);
+            Dict dict = baseMapper.selectOne(wrapper);
+            return dict.getName();
+        } else {
+//            根据dictCode查询dict对象，得到dict的id值
+            Dict codeDict = this.getDictByDictCode(dictCode);
+            Long id = codeDict.getId();
+//            根据id和value值进行查询
+            Dict finalDict = baseMapper.selectOne(new QueryWrapper<Dict>().eq("parent_id", id).eq("value", value));
+            return finalDict.getName();
+        }
+    }
+
+
+    private Dict getDictByDictCode(String dictCode) {
+        QueryWrapper<Dict> wrapper = new QueryWrapper<>();
+        wrapper.eq("dict_code", dictCode);
+        Dict codeDict = baseMapper.selectOne(wrapper);
+        return codeDict;
     }
 
 

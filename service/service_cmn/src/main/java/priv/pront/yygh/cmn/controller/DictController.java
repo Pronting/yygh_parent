@@ -35,7 +35,23 @@ public class DictController {
 
     @ApiOperation(value = "导出数据字典接口")
     @GetMapping("exportData")
-    public void exportDict(HttpServletResponse response){
+    public void exportDict(HttpServletResponse response) {
         dictService.exportDictData(response);
     }
+
+
+    @ApiOperation("根据dictcode,value查询")
+    @GetMapping("getName/{dicCode}/{value}")
+    public String getName(@PathVariable String dictCode, @PathVariable String value) {
+        return dictService.getDictName(dictCode, value);
+    }
+
+
+    @ApiOperation("根据value查询")
+    @GetMapping("getName/{value}")
+    public String getName(@PathVariable String value) {
+       return dictService.getDictName("",value);
+    }
+
+
 }
