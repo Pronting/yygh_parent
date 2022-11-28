@@ -2,6 +2,7 @@ package priv.pront.yygh.hosp.service.impl;
 
 
 import com.alibaba.fastjson.JSONObject;
+import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.*;
@@ -26,6 +27,7 @@ public class DepartmentServiceImpl implements DepartmentService {
     @Autowired
     private DepartmentRepository departmentRepository;
 
+    @ApiOperation("分页查询科室")
     @Override
     public Page<Department> findPageDepartment(int page, int limit, DepartmentQueryVo departmentQueryVo) {
 //        创建Pageable对象，里面设置当前页和每页记录数 0是第一页
@@ -41,6 +43,7 @@ public class DepartmentServiceImpl implements DepartmentService {
         return all;
     }
 
+    @ApiOperation("保存科室")
     @Override
     public void save(Map<String, Object> paramMap) {
 //        paramMap 转换department对象
@@ -62,6 +65,7 @@ public class DepartmentServiceImpl implements DepartmentService {
         }
     }
 
+    @ApiOperation("删除科室")
     @Override
     public void remove(String hoscode, String depcode) {
 //      先根据医院编号和科室编号查询出科室信息
