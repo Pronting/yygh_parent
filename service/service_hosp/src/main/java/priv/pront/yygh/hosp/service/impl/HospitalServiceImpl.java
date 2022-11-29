@@ -87,7 +87,7 @@ public class HospitalServiceImpl implements HospitalService {
     /**
      * 获取查询list集合，遍历进行医院等级封装
      *
-     * @param item 每一个医院对象
+     * @param hospital 每一个医院对象
      */
     private Hospital setHospitalHosType(Hospital hospital) {
 //        根据dictCode 和 value值获取医院的等级名称
