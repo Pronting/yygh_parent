@@ -11,6 +11,7 @@ import priv.pront.yygh.hosp.service.HospitalService;
 import priv.pront.yygh.model.hosp.Hospital;
 import priv.pront.yygh.vo.hosp.HospitalQueryVo;
 
+import javax.annotation.Resource;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
@@ -91,13 +92,13 @@ public class HospitalServiceImpl implements HospitalService {
      */
     private Hospital setHospitalHosType(Hospital hospital) {
 //        根据dictCode 和 value值获取医院的等级名称
-        String hosTypeString = dictFeignClient.getName("Hostype", hospital.getHostype());
+        String hostypeString = dictFeignClient.getName("Hostype", hospital.getHostype());
 //        查询省  市  地区
         String provinceString = dictFeignClient.getName(hospital.getProvinceCode());
         String cityString = dictFeignClient.getName(hospital.getCityCode());
         String districtString = dictFeignClient.getName(hospital.getDistrictCode());
         hospital.getParam().put("fullAddress", provinceString + cityString + districtString);
-        hospital.getParam().put("hosTypeString", hosTypeString);
+        hospital.getParam().put("hostypeString", hostypeString);
         return hospital;
     }
 }

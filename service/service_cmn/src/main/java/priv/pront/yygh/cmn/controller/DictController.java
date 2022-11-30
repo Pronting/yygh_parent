@@ -16,7 +16,7 @@ import java.util.List;
  * @Author: pront
  * @Time:2022-11-17 17:15
  */
-@Api(value = "数据字典接口")
+@Api(tags = "数据字典接口")
 @RestController
 @RequestMapping("/admin/cmn/dict")
 @CrossOrigin
@@ -40,8 +40,8 @@ public class DictController {
     }
 
 
-    @ApiOperation("根据dictcode,value查询")
-    @GetMapping("getName/{dicCode}/{value}")
+    @ApiOperation("根据dictCode,value查询")
+    @GetMapping("getName/{dictCode}/{value}")
     public String getName(@PathVariable String dictCode, @PathVariable String value) {
         return dictService.getDictName(dictCode, value);
     }
@@ -50,8 +50,13 @@ public class DictController {
     @ApiOperation("根据value查询")
     @GetMapping("getName/{value}")
     public String getName(@PathVariable String value) {
-       return dictService.getDictName("",value);
+        return dictService.getDictName("", value);
     }
 
-
+    @ApiOperation("根据dictCode获取下级节点")
+    @GetMapping("findByDictCode/{dictCode}")
+    public Result findByDictCode(@PathVariable String dictCode) {
+        List<Dict> list = dictService.findByDictCode(dictCode);
+        return Result.ok(list);
+    }
 }

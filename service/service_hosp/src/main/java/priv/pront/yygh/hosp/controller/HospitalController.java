@@ -1,5 +1,6 @@
 package priv.pront.yygh.hosp.controller;
 
+import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -14,6 +15,7 @@ import priv.pront.yygh.vo.hosp.HospitalQueryVo;
  * @Author: pront
  * @Time:2022-11-28 11:53
  */
+@Api(tags = "医院管理")
 @RestController
 @RequestMapping("/admin/hosp/hospital")
 @CrossOrigin

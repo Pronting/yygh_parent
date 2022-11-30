@@ -18,4 +18,6 @@ public interface DictService extends IService<Dict> {
     void exportDictData(HttpServletResponse response);
 
     String getDictName(String dictCode, String value);
+
+    List<Dict> findByDictCode(String dictCode);
 }

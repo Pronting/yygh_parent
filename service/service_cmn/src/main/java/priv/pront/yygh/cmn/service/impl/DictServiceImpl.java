@@ -123,4 +123,12 @@ public class DictServiceImpl extends ServiceImpl<DictMapper, Dict> implements Di
     }
 
 //    ServiceImpl 已经 注入了 HospitalSetMapper
+
+    @Override
+    public List<Dict> findByDictCode(String dictCode) {
+//        根据dicCode获取对应的id
+        Dict dict = this.getDictByDictCode(dictCode);
+//        根据id获取到子节点
+        return this.findChildData(dict.getId());
+    }
 }
