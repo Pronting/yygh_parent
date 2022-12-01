@@ -12,7 +12,9 @@ import priv.pront.yygh.model.hosp.Hospital;
 import priv.pront.yygh.vo.hosp.HospitalQueryVo;
 
 import javax.annotation.Resource;
+import javax.xml.crypto.Data;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -85,8 +87,9 @@ public class HospitalServiceImpl implements HospitalService {
         return pages;
     }
 
+
     /**
-     * 获取查询list集合，遍历进行医院等级封装
+     * 对医院等级封装
      *
      * @param hospital 每一个医院对象
      */
@@ -100,5 +103,28 @@ public class HospitalServiceImpl implements HospitalService {
         hospital.getParam().put("fullAddress", provinceString + cityString + districtString);
         hospital.getParam().put("hostypeString", hostypeString);
         return hospital;
+    }
+
+    @Override
+    public void updateStatus(String id, Integer status) {
+//        根据id先查询医院的信息
+        Hospital hospital = hospitalRepository.findById(id).get();
+//        设置修改信息
+        hospital.setStatus(status);
+        hospital.setUpdateTime(new Date());
+        hospitalRepository.save(hospital);
+    }
+
+    @Override
+    public  Map<String,Object> getHospitalById(String id) {
+        Map<String, Object> result = new HashMap<>();
+        Hospital hospital = this.setHospitalHosType(hospitalRepository.findById(id).get());
+        result.put("hospital", hospital);
+        result.put("bookingRule", hospital.getBookingRule());
+//        不需要重复返回
+        hospital.setBookingRule(null);
+        return result;
+
+
     }
 }

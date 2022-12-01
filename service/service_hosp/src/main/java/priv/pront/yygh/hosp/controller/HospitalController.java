@@ -10,6 +10,8 @@ import priv.pront.yygh.hosp.service.HospitalService;
 import priv.pront.yygh.model.hosp.Hospital;
 import priv.pront.yygh.vo.hosp.HospitalQueryVo;
 
+import java.util.Map;
+
 /**
  * @Description: 远程模块调用所访问的控制器
  * @Author: pront
@@ -31,5 +33,20 @@ public class HospitalController {
 
         Page<Hospital> pageModel = hospitalService.selectHospitalPage(page, limit, hospitalQueryVo);
         return Result.ok(pageModel);
+    }
+
+    @ApiOperation("更新医院的司上线状态")
+    @GetMapping("updateHospitalStatus/{id}/{status}")
+    public Result updateHospitalStatus(@PathVariable String id, @PathVariable Integer status) {
+        hospitalService.updateStatus(id, status);
+        return Result.ok();
+    }
+
+
+    @ApiOperation("医院详情信息")
+    @GetMapping("showHospitalDetail/{id}")
+    public Result showHospitalDetail(@PathVariable String id) {
+        Map<String,Object> map = hospitalService.getHospitalById(id);
+        return Result.ok(map);
     }
 }

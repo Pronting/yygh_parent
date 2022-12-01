@@ -27,4 +27,7 @@ public interface HospitalService {
     @ApiOperation("医院列表，查询带分页")
     Page<Hospital> selectHospitalPage(Integer page, Integer limit, HospitalQueryVo hospitalQueryVo);
 
+    void updateStatus(String id, Integer status);
+
+    Map<String,Object> getHospitalById(String id);
 }
