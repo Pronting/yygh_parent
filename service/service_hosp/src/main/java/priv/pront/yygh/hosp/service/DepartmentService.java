@@ -5,7 +5,9 @@ import io.swagger.annotations.ApiOperation;
 import org.springframework.data.domain.Page;
 import priv.pront.yygh.model.hosp.Department;
 import priv.pront.yygh.vo.hosp.DepartmentQueryVo;
+import priv.pront.yygh.vo.hosp.DepartmentVo;
 
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -23,4 +25,7 @@ public interface DepartmentService {
 
     @ApiOperation("删除科室接口")
     void remove(String hoscode, String depcode);
+
+    @ApiOperation("根据医院标号，查询医院所有科室列表")
+    List<DepartmentVo> findDeptTree(String hoscode);
 }

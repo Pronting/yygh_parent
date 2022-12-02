@@ -20,3 +20,4 @@ public class ServiceHospApplication {
         SpringApplication.run(ServiceHospApplication.class, args);
     }
 }
+

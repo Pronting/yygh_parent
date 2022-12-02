@@ -30,4 +30,7 @@ public interface HospitalService {
     void updateStatus(String id, Integer status);
 
     Map<String,Object> getHospitalById(String id);
+
+    @ApiOperation("根据医院编号得到医院名称")
+    String getHospitalName(String hoscode);
 }

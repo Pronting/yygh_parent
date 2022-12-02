@@ -22,4 +22,6 @@ public interface ScheduleService {
 
     @ApiOperation("删除排班")
     void remove(String hoscode, String hosScheduleId);
+
+    Map<String, Object> getRuleSchedule(long page, long limit, String hoscode, String depcode);
 }
