@@ -14,11 +14,13 @@ import org.springframework.data.mongodb.core.query.Criteria;
 
 import org.springframework.stereotype.Service;
 import priv.pront.yygh.hosp.repository.ScheduleRepository;
+import priv.pront.yygh.hosp.service.DepartmentService;
 import priv.pront.yygh.hosp.service.HospitalService;
 import priv.pront.yygh.hosp.service.ScheduleService;
 import priv.pront.yygh.model.hosp.Schedule;
 import priv.pront.yygh.vo.hosp.BookingScheduleRuleVo;
 import priv.pront.yygh.vo.hosp.ScheduleQueryVo;
+
 
 import java.util.Date;
 import java.util.HashMap;
@@ -41,6 +43,9 @@ public class ScheduleServiceImpl implements ScheduleService {
 
     @Autowired
     private HospitalService hospitalService;
+
+    @Autowired
+    private DepartmentService departmentService;
 
     @ApiOperation("上传排班接口")
     @Override
@@ -119,7 +124,7 @@ public class ScheduleServiceImpl implements ScheduleService {
                 Aggregation.match(criteria),
                 Aggregation.group("workDate")
         );
-        AggregationResults<BookingScheduleRuleVo> totalAggResults = mongoTemplate.aggregate(agg, Schedule.class, BookingScheduleRuleVo.class);
+        AggregationResults<BookingScheduleRuleVo> totalAggResults = mongoTemplate.aggregate(totalAgg, Schedule.class, BookingScheduleRuleVo.class);
         int total = totalAggResults.getMappedResults().size();
 
 //        将日期对应的星期获取到
@@ -143,9 +148,36 @@ public class ScheduleServiceImpl implements ScheduleService {
         return result;
     }
 
+    @Override
+    public List<Schedule> getDetailSchedule(String hoscode, String depcode, String workDate) {
+//        根据参数查询mongodb
+        List<Schedule> scheduleList = scheduleRepository.findScheduleByHoscodeAndDepcodeAndWorkDate(hoscode, depcode, new DateTime(workDate).toDate());
+//        把达到的list集合遍历，向设置其他值：医院名称、科室名称、日期对应的星期
+        scheduleList.stream().forEach(item -> {
+            this.packageSchedule(item);
+        });
+        return scheduleList;
+
+    }
+
+    /**
+     * 封装排班详情的其他值  医院名称、科室名称、日期对应星期
+     *
+     * @param schedule 每一个排班对象
+     */
+    private void packageSchedule(Schedule schedule) {
+//        根据医院编号 设置医院名称 并设置进科室对象里面
+        schedule.getParam().put("hosname", hospitalService.getHospitalName(schedule.getHoscode()));
+//        设置科室名称
+        schedule.getParam().put("depname", departmentService.getDepName(schedule.getHoscode(), schedule.getDepcode()));
+//        设置日期对应星期的值
+        schedule.getParam().put("dayOfWeek", this.getDayOfWeek(new DateTime(schedule.getWorkDate())));
+    }
+
 
     /**
      * 根据日期获取周几数据
+     *
      * @param dateTime dataTime对象
      * @return
      */

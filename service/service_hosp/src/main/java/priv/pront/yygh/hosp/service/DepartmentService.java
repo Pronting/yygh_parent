@@ -28,4 +28,7 @@ public interface DepartmentService {
 
     @ApiOperation("根据医院标号，查询医院所有科室列表")
     List<DepartmentVo> findDeptTree(String hoscode);
+
+    @ApiOperation("根据科室编号和医院编号查询科室名称")
+    String getDepName(String hoscode, String depcode);
 }
