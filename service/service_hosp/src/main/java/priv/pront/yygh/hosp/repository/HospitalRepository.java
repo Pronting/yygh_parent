@@ -4,6 +4,8 @@ import org.springframework.data.mongodb.repository.MongoRepository;
 import org.springframework.stereotype.Repository;
 import priv.pront.yygh.model.hosp.Hospital;
 
+import java.util.List;
+
 /**
  * @Description:
  * @Author: pront
@@ -18,4 +20,6 @@ public interface HospitalRepository extends MongoRepository<Hospital,String> {
      * @return 存在的医院信息
      */
     Hospital getHospitalByHoscode(String hoscode);
+
+    List<Hospital> findHopitalByHosnameLike(String hosname);
 }

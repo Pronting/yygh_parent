@@ -5,6 +5,7 @@ import org.springframework.data.domain.Page;
 import priv.pront.yygh.model.hosp.Hospital;
 import priv.pront.yygh.vo.hosp.HospitalQueryVo;
 
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -33,4 +34,9 @@ public interface HospitalService {
 
     @ApiOperation("根据医院编号得到医院名称")
     String getHospitalName(String hoscode);
+
+    @ApiOperation("模糊查询")
+    List<Hospital> findByHosName(String hosname);
+
+    Map<String, Object> item(String hoscode);
 }
