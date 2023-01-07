@@ -1,5 +1,6 @@
 package priv.pront.yygh.hosp.controller.api;
 
+import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -22,6 +23,7 @@ import java.util.Map;
  * @Author: pront
  * @Time:2022-12-04 14:09
  */
+@Api(tags = "用户系统api")
 @RestController
 @RequestMapping("/api/hosp/hospital")
 public class HospitalApiController {
