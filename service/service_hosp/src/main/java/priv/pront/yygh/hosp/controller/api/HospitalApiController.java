@@ -2,6 +2,7 @@ package priv.pront.yygh.hosp.controller.api;
 
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.ApiParam;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -11,7 +12,9 @@ import org.springframework.web.bind.annotation.RestController;
 import priv.pront.yygh.common.result.Result;
 import priv.pront.yygh.hosp.service.DepartmentService;
 import priv.pront.yygh.hosp.service.HospitalService;
+import priv.pront.yygh.hosp.service.ScheduleService;
 import priv.pront.yygh.model.hosp.Hospital;
+import priv.pront.yygh.model.hosp.Schedule;
 import priv.pront.yygh.vo.hosp.DepartmentVo;
 import priv.pront.yygh.vo.hosp.HospitalQueryVo;
 
@@ -33,6 +36,9 @@ public class HospitalApiController {
 
     @Autowired
     private DepartmentService departmentService;
+
+    @Autowired
+    private ScheduleService scheduleService;
 
     @ApiOperation("查询医院列表功能")
     @GetMapping("findHospitalList/{page}/{limit}")
@@ -64,4 +70,42 @@ public class HospitalApiController {
         Map<String, Object> map = hospitalService.item(hoscode);
         return Result.ok(map);
     }
+
+
+    @ApiOperation(value = "获取可预约排班数据")
+    @GetMapping("auth/getBookingScheduleRule/{page}/{limit}/{hoscode}/{depcode}")
+    public Result getBookingSchedule(
+            @ApiParam(name = "page", value = "当前页码", required = true)
+            @PathVariable Integer page,
+            @ApiParam(name = "limit", value = "每页记录数", required = true)
+            @PathVariable Integer limit,
+            @ApiParam(name = "hoscode", value = "医院code", required = true)
+            @PathVariable String hoscode,
+            @ApiParam(name = "depcode", value = "科室code", required = true)
+            @PathVariable String depcode) {
+        System.out.println("getBookingSchedule-api被调用");
+        return Result.ok(scheduleService.getBookingScheduleRule(page, limit, hoscode, depcode));
+    }
+
+    @ApiOperation(value = "获取排班数据")
+    @GetMapping("auth/findScheduleList/{hoscode}/{depcode}/{workDate}")
+    public Result findScheduleList(
+            @ApiParam(name = "hoscode", value = "医院code", required = true)
+            @PathVariable String hoscode,
+            @ApiParam(name = "depcode", value = "科室code", required = true)
+            @PathVariable String depcode,
+            @ApiParam(name = "workDate", value = "排班日期", required = true)
+            @PathVariable String workDate) {
+        System.out.println("findScheduleList-api被调用");
+        return Result.ok(scheduleService.getDetailSchedule(hoscode, depcode, workDate));
+    }
+
+    @ApiOperation(value = "获取排班id获取排版数据")
+    @GetMapping("getSchedule/{scheduleId}")
+    public Result getSchedule(@PathVariable String scheduleId) {
+        Schedule schedule = scheduleService.getScheduleById(scheduleId);
+        return Result.ok(schedule);
+    }
+
 }
+

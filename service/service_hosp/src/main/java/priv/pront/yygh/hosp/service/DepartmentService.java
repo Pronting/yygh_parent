@@ -31,4 +31,7 @@ public interface DepartmentService {
 
     @ApiOperation("根据科室编号和医院编号查询科室名称")
     String getDepName(String hoscode, String depcode);
+
+    @ApiOperation("根据科室编号和与原编号，查询科室")
+    Department getDepartment(String hoscode, String depcode);
 }
