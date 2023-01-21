@@ -10,6 +10,10 @@
     <modelVersion>4.0.0</modelVersion>
 
     <artifactId>common_util</artifactId>
+    <packaging>pom</packaging>
+    <modules>
+        <module>rabbit_util</module>
+    </modules>
 
     <properties>
         <maven.compiler.source>8</maven.compiler.source>

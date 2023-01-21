@@ -2,6 +2,7 @@ package priv.pront.yygh.hosp.service;
 
 import com.baomidou.mybatisplus.extension.service.IService;
 import priv.pront.yygh.model.hosp.HospitalSet;
+import priv.pront.yygh.vo.order.SignInfoVo;
 
 /**
  * @Description: 医院设置的接口
@@ -16,4 +17,12 @@ public interface HospitalSetService extends IService<HospitalSet> {
      * @return 医院签名
      */
     String getSignKey(String hoscode);
+
+
+    /**
+     * 获取签名信息
+     * @param hoscode
+     * @return
+     */
+    SignInfoVo getSignInfoVo(String hoscode);
 }

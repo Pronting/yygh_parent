@@ -23,6 +23,13 @@
             <groupId>joda-time</groupId>
             <artifactId>joda-time</artifactId>
         </dependency>
+
+        <dependency>
+            <groupId>priv.pront</groupId>
+            <artifactId>rabbit_util</artifactId>
+            <version>1.0</version>
+        </dependency>
+
     </dependencies>
 
 

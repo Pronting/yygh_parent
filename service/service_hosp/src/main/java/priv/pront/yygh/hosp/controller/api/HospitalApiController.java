@@ -12,11 +12,14 @@ import org.springframework.web.bind.annotation.RestController;
 import priv.pront.yygh.common.result.Result;
 import priv.pront.yygh.hosp.service.DepartmentService;
 import priv.pront.yygh.hosp.service.HospitalService;
+import priv.pront.yygh.hosp.service.HospitalSetService;
 import priv.pront.yygh.hosp.service.ScheduleService;
 import priv.pront.yygh.model.hosp.Hospital;
 import priv.pront.yygh.model.hosp.Schedule;
 import priv.pront.yygh.vo.hosp.DepartmentVo;
 import priv.pront.yygh.vo.hosp.HospitalQueryVo;
+import priv.pront.yygh.vo.hosp.ScheduleOrderVo;
+import priv.pront.yygh.vo.order.SignInfoVo;
 
 import java.util.List;
 import java.util.Map;
@@ -39,6 +42,9 @@ public class HospitalApiController {
 
     @Autowired
     private ScheduleService scheduleService;
+
+    @Autowired
+    private HospitalSetService hospitalSetService;
 
     @ApiOperation("查询医院列表功能")
     @GetMapping("findHospitalList/{page}/{limit}")
@@ -100,12 +106,30 @@ public class HospitalApiController {
         return Result.ok(scheduleService.getDetailSchedule(hoscode, depcode, workDate));
     }
 
-    @ApiOperation(value = "获取排班id获取排版数据")
+    @ApiOperation(value = "获取排班id获取排班数据")
     @GetMapping("getSchedule/{scheduleId}")
     public Result getSchedule(@PathVariable String scheduleId) {
         Schedule schedule = scheduleService.getScheduleById(scheduleId);
         return Result.ok(schedule);
     }
+
+    @ApiOperation(value = "根据排班id获取预约下单数据")
+    @GetMapping("inner/getScheduleOrderVo/{scheduleId}")
+    public ScheduleOrderVo getScheduleOrderVo(
+            @ApiParam(name = "scheduleId", value = "排班id", required = true)
+            @PathVariable("scheduleId") String scheduleId) {
+        return scheduleService.getScheduleOrderVo(scheduleId);
+    }
+
+    @ApiOperation(value = "获取医院签名信息")
+    @GetMapping("inner/getSignInfoVo/{hoscode}")
+    public SignInfoVo getSignInfoVo(
+            @ApiParam(name = "hoscode", value = "医院code", required = true)
+            @PathVariable("hoscode") String hoscode) {
+        return hospitalSetService.getSignInfoVo(hoscode);
+    }
+
+
 
 }
 

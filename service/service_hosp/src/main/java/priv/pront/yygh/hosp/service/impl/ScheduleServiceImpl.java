@@ -1,7 +1,10 @@
 package priv.pront.yygh.hosp.service.impl;
 
 import com.alibaba.fastjson.JSONObject;
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
+import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import io.swagger.annotations.ApiOperation;
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeConstants;
@@ -18,16 +21,16 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 import priv.pront.yygh.common.exception.YyghException;
 import priv.pront.yygh.common.result.ResultCodeEnum;
+import priv.pront.yygh.hosp.mapper.ScheduleMapper;
 import priv.pront.yygh.hosp.repository.ScheduleRepository;
 import priv.pront.yygh.hosp.service.DepartmentService;
 import priv.pront.yygh.hosp.service.HospitalService;
 import priv.pront.yygh.hosp.service.ScheduleService;
-import priv.pront.yygh.model.hosp.BookingRule;
-import priv.pront.yygh.model.hosp.Department;
-import priv.pront.yygh.model.hosp.Hospital;
-import priv.pront.yygh.model.hosp.Schedule;
+import priv.pront.yygh.model.hosp.*;
 import priv.pront.yygh.vo.hosp.BookingScheduleRuleVo;
+import priv.pront.yygh.vo.hosp.ScheduleOrderVo;
 import priv.pront.yygh.vo.hosp.ScheduleQueryVo;
+import priv.pront.yygh.vo.order.SignInfoVo;
 
 
 import javax.xml.crypto.Data;
@@ -40,7 +43,7 @@ import java.util.stream.Collectors;
  * @Time:2022-11-28 09:49
  */
 @Service
-public class ScheduleServiceImpl implements ScheduleService {
+public class ScheduleServiceImpl extends ServiceImpl<ScheduleMapper, Schedule> implements ScheduleService{
 
     @Autowired
     private ScheduleRepository scheduleRepository;
@@ -265,6 +268,58 @@ public class ScheduleServiceImpl implements ScheduleService {
     public Schedule getScheduleById(String scheduleId) {
         Schedule schedule = scheduleRepository.findById(scheduleId).get();
         return this.packageSchedule(schedule);
+    }
+
+    @Override
+    public ScheduleOrderVo getScheduleOrderVo(String scheduleId) {
+        ScheduleOrderVo scheduleOrderVo = new ScheduleOrderVo();
+//        获取排班信息
+        Schedule schedule = this.getScheduleById(scheduleId);
+        if(schedule == null) {
+            throw new YyghException(ResultCodeEnum.PARAM_ERROR);
+        }
+        //获取预约规则信息
+        Hospital hospital = hospitalService.getByHoscode(schedule.getHoscode());
+        if(hospital == null) {
+            throw new YyghException(ResultCodeEnum.PARAM_ERROR);
+        }
+        BookingRule bookingRule = hospital.getBookingRule();
+        if(bookingRule == null) {
+            throw new YyghException(ResultCodeEnum.PARAM_ERROR);
+        }
+
+//        把获取到的数据设置到scheduleVo中去
+        scheduleOrderVo.setHoscode(schedule.getHoscode());
+        scheduleOrderVo.setHosname(hospitalService.getHospitalName(schedule.getHoscode()));
+        scheduleOrderVo.setDepcode(schedule.getDepcode());
+        scheduleOrderVo.setDepname(departmentService.getDepName(schedule.getHoscode(), schedule.getDepcode()));
+        scheduleOrderVo.setHosScheduleId(schedule.getHosScheduleId());
+        scheduleOrderVo.setAvailableNumber(schedule.getAvailableNumber());
+        scheduleOrderVo.setTitle(schedule.getTitle());
+        scheduleOrderVo.setReserveDate(schedule.getWorkDate());
+        scheduleOrderVo.setReserveTime(schedule.getWorkTime());
+        scheduleOrderVo.setAmount(schedule.getAmount());
+
+        //预约开始时间
+        DateTime startTime = this.getDateTime(new Date(), bookingRule.getReleaseTime());
+        scheduleOrderVo.setStartTime(startTime.toDate());
+
+        //预约截止时间
+        DateTime endTime = this.getDateTime(new DateTime().plusDays(bookingRule.getCycle()).toDate(), bookingRule.getStopTime());
+        scheduleOrderVo.setEndTime(endTime.toDate());
+
+        //当天停止挂号时间
+        DateTime stopTime = this.getDateTime(new Date(), bookingRule.getStopTime());
+        scheduleOrderVo.setStopTime(stopTime.toDate());
+
+        return scheduleOrderVo;
+    }
+
+    @Override
+    public void update(Schedule schedule) {
+        schedule.setUpdateTime(new Date());
+        //主键一致就是更新
+        scheduleRepository.save(schedule);
     }
 
     /**

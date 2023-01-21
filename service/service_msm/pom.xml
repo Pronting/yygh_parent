@@ -22,6 +22,14 @@
             <groupId>com.aliyun</groupId>
             <artifactId>aliyun-java-sdk-core</artifactId>
         </dependency>
+
+        <!-- rabbitMQ -->
+        <dependency>
+            <groupId>priv.pront</groupId>
+            <artifactId>rabbit_util</artifactId>
+            <version>1.0</version>
+        </dependency>
+
     </dependencies>
 
 
