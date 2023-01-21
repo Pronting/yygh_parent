@@ -5,10 +5,7 @@ import lombok.extern.slf4j.Slf4j;
 import priv.pront.yygh.common.utils.HttpUtil;
 import priv.pront.yygh.common.utils.MD5;
 
-import java.util.Date;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.TreeMap;
+import java.util.*;
 
 @Slf4j
 public class HttpRequestHelper {

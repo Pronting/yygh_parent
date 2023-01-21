@@ -7,6 +7,7 @@ import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import priv.pront.yygh.common.exception.YyghException;
+
 import priv.pront.yygh.common.helper.HttpRequestHelper;
 import priv.pront.yygh.common.result.ResultCodeEnum;
 import priv.pront.yygh.enums.OrderStatusEnum;
@@ -69,7 +70,7 @@ public class OrderServiceImpl extends ServiceImpl<OrderMapper, OrderInfo> implem
         orderInfo.setPatientName(patient.getName());
         orderInfo.setPatientPhone(patient.getPhone());
         orderInfo.setOrderStatus(OrderStatusEnum.UNPAID.getStatus());
-        this.save(orderInfo);
+        baseMapper.insert(orderInfo);
 
 //        调用医院接口，实现预约挂号操作
 //        设置调用医院接口需要的参数，参数放到map中
@@ -97,6 +98,9 @@ public class OrderServiceImpl extends ServiceImpl<OrderMapper, OrderInfo> implem
         paramMap.put("contactsCertificatesNo",patient.getContactsCertificatesNo());
         paramMap.put("contactsPhone",patient.getContactsPhone());
         paramMap.put("timestamp", HttpRequestHelper.getTimestamp());
+
+        String sign = HttpRequestHelper.getSign(paramMap, signInfoVo.getSignKey());
+        paramMap.put("sign", sign);
 
 //        请求医院系统接口
         JSONObject result = HttpRequestHelper.sendRequest(paramMap, signInfoVo.getApiUrl() + "/order/submitOrder");

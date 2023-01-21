@@ -25,6 +25,9 @@ public class OrderApiController {
     @ApiOperation("生成挂号订单")
     @PostMapping("auth/submitOrder/{scheduleId}/{patientId}")
     public Result saveOrders(@PathVariable String scheduleId, @PathVariable Long patientId) {
+        System.out.println("正在调用api......");
+        System.out.print("这两个参数分别是:" + scheduleId + " " + patientId);
+        System.out.println("正在调用api2......");
         Long orderId = orderService.saveOrder(scheduleId, patientId);
         return Result.ok(orderId);
     }
