@@ -9,4 +9,14 @@ import java.util.Map;
  */
 public interface WeixinService {
     Map<String, Object> createNative(Long orderId);
+
+    Map<String, String> queryPayStatus(Long orderId);
+
+    /***
+     * 退款
+     * @param orderId
+     * @return
+     */
+    Boolean refund(Long orderId);
+
 }

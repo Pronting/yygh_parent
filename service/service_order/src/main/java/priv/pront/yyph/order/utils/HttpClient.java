@@ -147,7 +147,7 @@ public class HttpClient {
             if (isHttps) {
                 if (isCert) {
 //                    todo 需要添加文件内容
-                    FileInputStream inputStream = new FileInputStream(new File(""));
+                    FileInputStream inputStream = new FileInputStream(new File("C:\\Project\\priv\\pront\\IDEA\\yygh_parent\\service\\service_order\\src\\main\\resources\\cert\\apiclient_cert.p12"));
                     KeyStore keystore = KeyStore.getInstance("PKCS12");
                     char[] partnerId2charArray = certPassword.toCharArray();
                     keystore.load(inputStream, partnerId2charArray);

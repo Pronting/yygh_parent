@@ -109,6 +109,7 @@ public class OrderServiceImpl extends ServiceImpl<OrderMapper, OrderInfo> implem
         paramMap.put("sign", sign);
 
 //        请求医院系统接口
+        System.out.println(signInfoVo.getApiUrl());
         JSONObject result = HttpRequestHelper.sendRequest(paramMap, signInfoVo.getApiUrl() + "/order/submitOrder");
         if (result.getInteger("code") == 200) {
             JSONObject jsonObject = result.getJSONObject("data");
@@ -169,6 +170,7 @@ public class OrderServiceImpl extends ServiceImpl<OrderMapper, OrderInfo> implem
 
     @Override
     public OrderInfo getOrder(String orderId) {
+        System.out.println(orderId);
         OrderInfo orderInfo = baseMapper.selectById(orderId);
         return this.packOrderInfo(orderInfo);
     }
