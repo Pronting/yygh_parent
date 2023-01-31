@@ -116,7 +116,7 @@ public class HospitalServiceImpl implements HospitalService {
     }
 
     @Override
-    public  Map<String,Object> getHospitalById(String id) {
+    public Map<String, Object> getHospitalById(String id) {
         Map<String, Object> result = new HashMap<>();
         Hospital hospital = this.setHospitalHosType(hospitalRepository.findById(id).get());
         result.put("hospital", hospital);
@@ -146,6 +146,7 @@ public class HospitalServiceImpl implements HospitalService {
     public Map<String, Object> item(String hoscode) {
         Map<String, Object> result = new HashMap<>();
 //        医院详情
+        System.out.println(hoscode);
         Hospital hospital = this.setHospitalHosType(this.getByHoscode(hoscode));
         result.put("hospital", hospital);
 //        预约规则

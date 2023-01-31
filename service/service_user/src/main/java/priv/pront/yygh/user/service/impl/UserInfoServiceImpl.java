@@ -28,6 +28,7 @@ public class UserInfoServiceImpl extends ServiceImpl<UserInfoMapper, UserInfo> i
 
     @Autowired
     private RedisTemplate<String, String> redisTemplate;
+
     @Override
     public Map<String, Object> loginUser(LoginVo loginVo) {
 //        从loginVo获取到输入的手机号和验证码
@@ -44,17 +45,33 @@ public class UserInfoServiceImpl extends ServiceImpl<UserInfoMapper, UserInfo> i
         if (!code.equals(redisCode)) {
             throw new YyghException(ResultCodeEnum.CODE_ERROR);
         }
-//        判断是否是第一次登录，根据手机号查询数据库，如果不存在相同的手机号就是第一次登录
-        QueryWrapper<UserInfo> wrapper = new QueryWrapper<>();
-        wrapper.eq("phone", phone);
-        UserInfo userInfo = baseMapper.selectOne(wrapper);
+
+//        判断openid是否为空，进行相应的操作
+        UserInfo userInfo = null;
+        if (!StringUtils.isEmpty(loginVo.getOpenid())) {
+            userInfo = this.selectWxInfoOpenId(loginVo.getOpenid());
+            if (null != userInfo) {
+                userInfo.setPhone(loginVo.getPhone());
+                this.updateById(userInfo);
+            } else {
+                throw new YyghException(ResultCodeEnum.DATA_ERROR);
+            }
+        }
+
+//        如果说userInfo为空，进行在正常的手机登录
         if (userInfo == null) {
+//        判断是否是第一次登录，根据手机号查询数据库，如果不存在相同的手机号就是第一次登录
+            QueryWrapper<UserInfo> wrapper = new QueryWrapper<>();
+            wrapper.eq("phone", phone);
+            userInfo = baseMapper.selectOne(wrapper);
+            if (userInfo == null) {
 //            第一次使用这个手机号码，添加到数据库中
-            userInfo = new UserInfo();
-            userInfo.setName("");
-            userInfo.setPhone(phone);
-            userInfo.setStatus(1);
-            baseMapper.insert(userInfo);
+                userInfo = new UserInfo();
+                userInfo.setName("");
+                userInfo.setPhone(phone);
+                userInfo.setStatus(1);
+                baseMapper.insert(userInfo);
+            }
         }
 //        校验是否被禁用
         if (userInfo.getStatus() == 0) {
@@ -65,10 +82,10 @@ public class UserInfoServiceImpl extends ServiceImpl<UserInfoMapper, UserInfo> i
 //        返回登录信息、用户名、token
         Map<String, Object> map = new HashMap<>();
         String name = userInfo.getName();
-        if(StringUtils.isEmpty(name)) {
+        if (StringUtils.isEmpty(name)) {
             name = userInfo.getNickName();
         }
-        if(StringUtils.isEmpty(name)) {
+        if (StringUtils.isEmpty(name)) {
             name = userInfo.getPhone();
         }
         map.put("name", name);
@@ -76,5 +93,12 @@ public class UserInfoServiceImpl extends ServiceImpl<UserInfoMapper, UserInfo> i
         String token = JwtHelper.createToken(userInfo.getId(), name);
         map.put("token", token);
         return map;
+    }
+
+    @Override
+    public UserInfo selectWxInfoOpenId(String openid) {
+        QueryWrapper<UserInfo> queryWrapper = new QueryWrapper<>();
+        queryWrapper.eq("openid", openid);
+        return baseMapper.selectOne(queryWrapper);
     }
 }
