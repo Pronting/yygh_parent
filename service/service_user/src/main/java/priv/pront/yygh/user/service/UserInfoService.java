@@ -3,6 +3,7 @@ package priv.pront.yygh.user.service;
 import com.baomidou.mybatisplus.extension.service.IService;
 import priv.pront.yygh.model.user.UserInfo;
 import priv.pront.yygh.vo.user.LoginVo;
+import priv.pront.yygh.vo.user.UserAuthVo;
 
 import java.util.Map;
 
@@ -19,4 +20,11 @@ public interface UserInfoService extends IService<UserInfo> {
      * @return
      */
     UserInfo selectWxInfoOpenId(String openid);
+
+    /**
+     *
+     * @param userId 用户的id
+     * @param userAuthVo 认证数据的vo对象
+     */
+    void serAuth(Long userId, UserAuthVo userAuthVo);
 }

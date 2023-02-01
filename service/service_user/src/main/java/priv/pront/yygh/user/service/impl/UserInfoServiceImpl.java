@@ -9,10 +9,12 @@ import org.springframework.util.StringUtils;
 import priv.pront.yygh.common.exception.YyghException;
 import priv.pront.yygh.common.helper.JwtHelper;
 import priv.pront.yygh.common.result.ResultCodeEnum;
+import priv.pront.yygh.enums.AuthStatusEnum;
 import priv.pront.yygh.model.user.UserInfo;
 import priv.pront.yygh.user.mapper.UserInfoMapper;
 import priv.pront.yygh.user.service.UserInfoService;
 import priv.pront.yygh.vo.user.LoginVo;
+import priv.pront.yygh.vo.user.UserAuthVo;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -100,5 +102,19 @@ public class UserInfoServiceImpl extends ServiceImpl<UserInfoMapper, UserInfo> i
         QueryWrapper<UserInfo> queryWrapper = new QueryWrapper<>();
         queryWrapper.eq("openid", openid);
         return baseMapper.selectOne(queryWrapper);
+    }
+
+    @Override
+    public void serAuth(Long userId, UserAuthVo userAuthVo) {
+//        根据用户id查询出用户信息
+        UserInfo userInfo = baseMapper.selectById(userId);
+//        设置认证信息
+        userInfo.setName(userAuthVo.getName());
+        userInfo.setCertificatesType(userAuthVo.getCertificatesType());
+        userInfo.setCertificatesNo(userAuthVo.getCertificatesNo());
+        userInfo.setCertificatesUrl(userAuthVo.getCertificatesUrl());
+        userInfo.setAuthStatus(AuthStatusEnum.AUTH_RUN.getStatus());
+//        数据更新
+        baseMapper.updateById(userInfo);
     }
 }

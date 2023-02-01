@@ -14,7 +14,7 @@ public class JwtHelper {
 
 //    过期时间
     private static long tokenExpiration = 24 * 60 * 60 * 10;
-//    tocken签名密钥
+//    token签名密钥
     private static String tokenSignKey = "123456";
 
     /**

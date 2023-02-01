@@ -146,7 +146,9 @@ public class HospitalServiceImpl implements HospitalService {
     public Map<String, Object> item(String hoscode) {
         Map<String, Object> result = new HashMap<>();
 //        医院详情
-        System.out.println(hoscode);
+        System.out.println("item-hoscode = " + hoscode);
+        System.out.println("this = " + this);
+        System.out.println("setHospitalHosType中的参数 = " + this.getByHoscode(hoscode));
         Hospital hospital = this.setHospitalHosType(this.getByHoscode(hoscode));
         result.put("hospital", hospital);
 //        预约规则

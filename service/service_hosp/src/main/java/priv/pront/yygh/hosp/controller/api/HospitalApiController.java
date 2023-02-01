@@ -60,6 +60,7 @@ public class HospitalApiController {
     @ApiOperation("根据医院标号获取医院预约挂号详情")
     @GetMapping("findHospitalDetail/{hoscode}")
     public Result item(@PathVariable String hoscode) {
+        System.out.println("Api-controller-hoscde = " + hoscode);
         Map<String, Object> map = hospitalService.item(hoscode);
         return Result.ok(map);
     }
