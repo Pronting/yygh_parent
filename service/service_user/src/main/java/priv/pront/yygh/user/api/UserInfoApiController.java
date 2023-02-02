@@ -1,4 +1,4 @@
-package priv.pront.yygh.user.controller;
+package priv.pront.yygh.user.api;
 
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
