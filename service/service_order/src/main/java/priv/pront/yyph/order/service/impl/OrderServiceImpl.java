@@ -1,11 +1,15 @@
 package priv.pront.yyph.order.service.impl;
 
 import com.alibaba.fastjson.JSONObject;
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.baomidou.mybatisplus.core.metadata.IPage;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import org.joda.time.DateTime;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.util.StringUtils;
 import priv.pront.yygh.common.exception.YyghException;
 
 import priv.pront.yygh.common.helper.HttpRequestHelper;
@@ -13,9 +17,11 @@ import priv.pront.yygh.common.result.ResultCodeEnum;
 import priv.pront.yygh.enums.OrderStatusEnum;
 import priv.pront.yygh.model.order.OrderInfo;
 import priv.pront.yygh.model.user.Patient;
+import priv.pront.yygh.model.user.UserInfo;
 import priv.pront.yygh.vo.hosp.ScheduleOrderVo;
 import priv.pront.yygh.vo.msm.MsmVo;
 import priv.pront.yygh.vo.order.OrderMqVo;
+import priv.pront.yygh.vo.order.OrderQueryVo;
 import priv.pront.yygh.vo.order.SignInfoVo;
 import priv.pront.yyph.common.rabbit.constant.MqConstant;
 import priv.pront.yyph.common.rabbit.service.RabbitService;
@@ -62,7 +68,7 @@ public class OrderServiceImpl extends ServiceImpl<OrderMapper, OrderInfo> implem
         OrderInfo orderInfo = new OrderInfo();
         BeanUtils.copyProperties(scheduleOrderVo, orderInfo);
 //        向orderInfo中设置其他的数据
-        String outTradeNo = System.currentTimeMillis() + ""+ new Random().nextInt(100);
+        String outTradeNo = System.currentTimeMillis() + "" + new Random().nextInt(100);
         orderInfo.setOutTradeNo(outTradeNo);
         orderInfo.setScheduleId(scheduleId);
         orderInfo.setUserId(patient.getUserId());
@@ -75,28 +81,28 @@ public class OrderServiceImpl extends ServiceImpl<OrderMapper, OrderInfo> implem
 //        调用医院接口，实现预约挂号操作
 //        设置调用医院接口需要的参数，参数放到map中
         Map<String, Object> paramMap = new HashMap<>();
-        paramMap.put("hoscode",orderInfo.getHoscode());
-        paramMap.put("depcode",orderInfo.getDepcode());
-        paramMap.put("hosScheduleId",orderInfo.getScheduleId());
-        paramMap.put("reserveDate",new DateTime(orderInfo.getReserveDate()).toString("yyyy-MM-dd"));
+        paramMap.put("hoscode", orderInfo.getHoscode());
+        paramMap.put("depcode", orderInfo.getDepcode());
+        paramMap.put("hosScheduleId", orderInfo.getScheduleId());
+        paramMap.put("reserveDate", new DateTime(orderInfo.getReserveDate()).toString("yyyy-MM-dd"));
         paramMap.put("reserveTime", orderInfo.getReserveTime());
-        paramMap.put("amount",orderInfo.getAmount());
+        paramMap.put("amount", orderInfo.getAmount());
         paramMap.put("name", patient.getName());
-        paramMap.put("certificatesType",patient.getCertificatesType());
+        paramMap.put("certificatesType", patient.getCertificatesType());
         paramMap.put("certificatesNo", patient.getCertificatesNo());
-        paramMap.put("sex",patient.getSex());
+        paramMap.put("sex", patient.getSex());
         paramMap.put("birthdate", patient.getBirthdate());
-        paramMap.put("phone",patient.getPhone());
+        paramMap.put("phone", patient.getPhone());
         paramMap.put("isMarry", patient.getIsMarry());
-        paramMap.put("provinceCode",patient.getProvinceCode());
+        paramMap.put("provinceCode", patient.getProvinceCode());
         paramMap.put("cityCode", patient.getCityCode());
-        paramMap.put("districtCode",patient.getDistrictCode());
-        paramMap.put("address",patient.getAddress());
+        paramMap.put("districtCode", patient.getDistrictCode());
+        paramMap.put("address", patient.getAddress());
         //联系人
-        paramMap.put("contactsName",patient.getContactsName());
+        paramMap.put("contactsName", patient.getContactsName());
         paramMap.put("contactsCertificatesType", patient.getContactsCertificatesType());
-        paramMap.put("contactsCertificatesNo",patient.getContactsCertificatesNo());
-        paramMap.put("contactsPhone",patient.getContactsPhone());
+        paramMap.put("contactsCertificatesNo", patient.getContactsCertificatesNo());
+        paramMap.put("contactsPhone", patient.getContactsPhone());
         paramMap.put("timestamp", HttpRequestHelper.getTimestamp());
 
         String sign = HttpRequestHelper.getSign(paramMap, signInfoVo.getSignKey());
@@ -109,11 +115,14 @@ public class OrderServiceImpl extends ServiceImpl<OrderMapper, OrderInfo> implem
             //预约记录唯一标识（医院预约记录主键）
             String hosRecordId = jsonObject.getString("hosRecordId");
             //预约序号
-            Integer number = jsonObject.getInteger("number");;
+            Integer number = jsonObject.getInteger("number");
+            ;
             //取号时间
-            String fetchTime = jsonObject.getString("fetchTime");;
+            String fetchTime = jsonObject.getString("fetchTime");
+            ;
             //取号地址
-            String fetchAddress = jsonObject.getString("fetchAddress");;
+            String fetchAddress = jsonObject.getString("fetchAddress");
+            ;
             //更新订单
             orderInfo.setHosRecordId(hosRecordId);
             orderInfo.setNumber(number);
@@ -136,9 +145,9 @@ public class OrderServiceImpl extends ServiceImpl<OrderMapper, OrderInfo> implem
             msmVo.setTemplateCode("SMS_267640222");
             String reserveDate =
                     new DateTime(orderInfo.getReserveDate()).toString("yyyy-MM-dd")
-                            + (orderInfo.getReserveTime()==0 ? "上午": "下午");
-            Map<String,Object> param = new HashMap<String,Object>(){{
-                put("title", orderInfo.getHosname()+"|"+orderInfo.getDepname()+"|"+orderInfo.getTitle());
+                            + (orderInfo.getReserveTime() == 0 ? "上午" : "下午");
+            Map<String, Object> param = new HashMap<String, Object>() {{
+                put("title", orderInfo.getHosname() + "|" + orderInfo.getDepname() + "|" + orderInfo.getTitle());
                 put("amount", orderInfo.getAmount());
                 put("reserveDate", reserveDate);
                 put("name", orderInfo.getPatientName());
@@ -157,4 +166,54 @@ public class OrderServiceImpl extends ServiceImpl<OrderMapper, OrderInfo> implem
 
 
     }
+
+    @Override
+    public OrderInfo getOrder(String orderId) {
+        OrderInfo orderInfo = baseMapper.selectById(orderId);
+        return this.packOrderInfo(orderInfo);
+    }
+
+    @Override
+    public IPage<OrderInfo> selectPage(Page<OrderInfo> pageParam, OrderQueryVo orderQueryVo) {
+        String name = orderQueryVo.getKeyword(); // 医院名称
+        Long patientId = orderQueryVo.getPatientId(); //就诊人名称
+        String orderStatus = orderQueryVo.getOrderStatus(); //订单状态
+        String createTimeBegin = orderQueryVo.getCreateTimeBegin(); //开始时间
+        String createTimeEnd = orderQueryVo.getCreateTimeEnd(); //结束时间
+//        对条件值进行非空判断
+        QueryWrapper<OrderInfo> wrapper = new QueryWrapper<>();
+        if (!StringUtils.isEmpty(name)) {
+            wrapper.like("hosname", name);
+        }
+        if (!StringUtils.isEmpty(patientId)) {
+            wrapper.eq("patient_id", patientId);
+        }
+        if (!StringUtils.isEmpty(orderStatus)) {
+            wrapper.eq("order_status", orderStatus);
+        }
+        if (!StringUtils.isEmpty(createTimeBegin)) {
+            wrapper.gt("create_time", createTimeBegin);
+        }
+        if (!StringUtils.isEmpty(createTimeEnd)) {
+            wrapper.lt("end_time", createTimeEnd);
+        }
+        IPage<OrderInfo> pages = baseMapper.selectPage(pageParam, wrapper);
+        pages.getRecords().stream().forEach(item -> {
+            this.packOrderInfo(item);
+        });
+        return pages;
+    }
+
+
+    /**
+     * 包装一个参数
+     *
+     * @param orderInfo orderInfo 对象
+     * @return
+     */
+    private OrderInfo packOrderInfo(OrderInfo orderInfo) {
+        orderInfo.getParam().put("orderStatusString", OrderStatusEnum.getStatusNameByStatus(orderInfo.getOrderStatus()));
+        return orderInfo;
+    }
+
 }

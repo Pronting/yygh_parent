@@ -1,7 +1,10 @@
 package priv.pront.yyph.order.service;
 
+import com.baomidou.mybatisplus.core.metadata.IPage;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.IService;
 import priv.pront.yygh.model.order.OrderInfo;
+import priv.pront.yygh.vo.order.OrderQueryVo;
 
 /**
  * @Description:
@@ -18,4 +21,8 @@ public interface OrderService extends IService<OrderInfo> {
      * @return
      */
     Long saveOrder(String scheduleId, Long patientId);
+
+    OrderInfo getOrder(String orderId);
+
+    IPage<OrderInfo> selectPage(Page<OrderInfo> pageParam, OrderQueryVo orderQueryVo);
 }
