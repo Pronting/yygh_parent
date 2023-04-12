@@ -173,7 +173,7 @@ public class WeixinServiceImpl implements WeixinService {
             client.setHttps(true);
 //            设置证书信息
             client.setCert(true);
-            client.setCertPassword("C:\\Project\\priv\\pront\\IDEA\\yygh_parent\\service\\service_order\\src\\main\\resources\\cert\\apiclient_cert.p12");
+            client.setCertPassword("1558950191");
             client.post();
 //            接收返回数据
             String xml = client.getContent();
