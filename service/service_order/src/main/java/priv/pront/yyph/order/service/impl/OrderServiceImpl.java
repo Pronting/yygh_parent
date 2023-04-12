@@ -20,9 +20,7 @@ import priv.pront.yygh.model.user.Patient;
 import priv.pront.yygh.model.user.UserInfo;
 import priv.pront.yygh.vo.hosp.ScheduleOrderVo;
 import priv.pront.yygh.vo.msm.MsmVo;
-import priv.pront.yygh.vo.order.OrderMqVo;
-import priv.pront.yygh.vo.order.OrderQueryVo;
-import priv.pront.yygh.vo.order.SignInfoVo;
+import priv.pront.yygh.vo.order.*;
 import priv.pront.yyph.common.rabbit.constant.MqConstant;
 import priv.pront.yyph.common.rabbit.service.RabbitService;
 import priv.pront.yyph.hospital.client.HospitalFeignClient;
@@ -32,8 +30,10 @@ import priv.pront.yyph.order.service.WeixinService;
 import priv.pront.yyph.user.client.PatientFeignClient;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Random;
+import java.util.stream.Collectors;
 
 /**
  * @Description:
@@ -212,6 +212,7 @@ public class OrderServiceImpl extends ServiceImpl<OrderMapper, OrderInfo> implem
 
     /**
      * 取消预约
+     *
      * @param orderId 订单编号
      * @return
      */
@@ -226,27 +227,27 @@ public class OrderServiceImpl extends ServiceImpl<OrderMapper, OrderInfo> implem
         }
 //        调用医院接口实现预约取消
         SignInfoVo signInfoVo = hospitalFeignClient.getSignInfoVo(orderInfo.getHoscode());
-        if(null == signInfoVo) {
+        if (null == signInfoVo) {
             throw new YyghException(ResultCodeEnum.PARAM_ERROR);
         }
 
         Map<String, Object> reqMap = new HashMap<>();
-        reqMap.put("hoscode",orderInfo.getHoscode());
-        reqMap.put("hosRecordId",orderInfo.getHosRecordId());
+        reqMap.put("hoscode", orderInfo.getHoscode());
+        reqMap.put("hosRecordId", orderInfo.getHosRecordId());
         reqMap.put("timestamp", HttpRequestHelper.getTimestamp());
         String sign = HttpRequestHelper.getSign(reqMap, signInfoVo.getSignKey());
         reqMap.put("sign", sign);
 
-        JSONObject result = HttpRequestHelper.sendRequest(reqMap, signInfoVo.getApiUrl()+"/order/updateCancelStatus");
+        JSONObject result = HttpRequestHelper.sendRequest(reqMap, signInfoVo.getApiUrl() + "/order/updateCancelStatus");
 //        根据医院接口返回的数据
         if (result.getInteger("code") != 200) {
             throw new YyghException(result.getString("message"), ResultCodeEnum.FAIL.getCode());
-        }else{
+        } else {
 //            医院这边调用成功，调用退款方法,判断当前的订单是否可以退款？
-            if(orderInfo.getOrderStatus().intValue() == OrderStatusEnum.PAID.getStatus().intValue()) {
+            if (orderInfo.getOrderStatus().intValue() == OrderStatusEnum.PAID.getStatus().intValue()) {
 //              已支付 退款
                 boolean isRefund = weixinService.refund(orderId);
-                if(!isRefund) {
+                if (!isRefund) {
                     throw new YyghException(ResultCodeEnum.CANCEL_ORDER_FAIL);
                 }
 //                更新订单的状态
@@ -259,9 +260,9 @@ public class OrderServiceImpl extends ServiceImpl<OrderMapper, OrderInfo> implem
                 MsmVo msmVo = new MsmVo();
                 msmVo.setPhone(orderInfo.getPatientPhone());
                 msmVo.setTemplateCode("SMS_194640722");
-                String reserveDate = new DateTime(orderInfo.getReserveDate()).toString("yyyy-MM-dd") + (orderInfo.getReserveTime()==0 ? "上午": "下午");
-                Map<String,Object> param = new HashMap<String,Object>(){{
-                    put("title", orderInfo.getHosname()+"|"+orderInfo.getDepname()+"|"+orderInfo.getTitle());
+                String reserveDate = new DateTime(orderInfo.getReserveDate()).toString("yyyy-MM-dd") + (orderInfo.getReserveTime() == 0 ? "上午" : "下午");
+                Map<String, Object> param = new HashMap<String, Object>() {{
+                    put("title", orderInfo.getHosname() + "|" + orderInfo.getDepname() + "|" + orderInfo.getTitle());
                     put("reserveDate", reserveDate);
                     put("name", orderInfo.getPatientName());
                 }};
@@ -272,6 +273,52 @@ public class OrderServiceImpl extends ServiceImpl<OrderMapper, OrderInfo> implem
             return true;
         }
 
+    }
+
+    /**
+     * 就诊通知
+     */
+    @Override
+    public void patientTips() {
+        QueryWrapper<OrderInfo> wrapper = new QueryWrapper<>();
+        wrapper.eq("reserve_date", new DateTime().toString("yyyy-MM-dd"));
+        wrapper.ne("order_status", OrderStatusEnum.CANCLE.getStatus());
+        List<OrderInfo> orderInfoList = baseMapper.selectList(wrapper);
+        for (OrderInfo orderInfo : orderInfoList) {
+            //短信提示
+            MsmVo msmVo = new MsmVo();
+            msmVo.setPhone(orderInfo.getPatientPhone());
+            String reserveDate = new DateTime(orderInfo.getReserveDate()).toString("yyyy-MM-dd") + (orderInfo.getReserveTime() == 0 ? "上午" : "下午");
+            Map<String, Object> param = new HashMap<String, Object>() {{
+                put("title", orderInfo.getHosname() + "|" + orderInfo.getDepname() + "|" + orderInfo.getTitle());
+                put("reserveDate", reserveDate);
+                put("name", orderInfo.getPatientName());
+            }};
+            msmVo.setParam(param);
+            rabbitService.sendMessage(MqConstant.EXCHANGE_DIRECT_MSM, MqConstant.ROUTING_MSM_ITEM, msmVo);
+
+        }
+    }
+
+    /**
+     * 预约统计
+     * @param orderCountQueryVo
+     * @return
+     */
+    @Override
+    public Map<String, Object> getCountMap(OrderCountQueryVo orderCountQueryVo) {
+//        调用mapper中的方法得到数据
+        List<OrderCountVo> orderCountVoList = baseMapper.selectOrderCount(orderCountQueryVo);
+//        获取x轴需要的数据，日期数据
+        List<String> dateList = orderCountVoList.stream().map(OrderCountVo::getReserveDate).collect(Collectors.toList());
+//        获取y轴需要的数据， 具体数量
+        List<Integer> countList = orderCountVoList.stream().map(OrderCountVo::getCount).collect(Collectors.toList());
+        Map<String, Object> map = new HashMap<>();
+        map.put("dateList", dateList);
+        map.put("countList", countList);
+        System.out.println("统计成功！");
+        System.out.println(map);
+        return map;
     }
 
 

@@ -1,8 +1,8 @@
-package priv.pront.yyph.order;
+package priv.pront.yyph.statistics;
 
-import org.mybatis.spring.annotation.MapperScan;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.boot.autoconfigure.jdbc.DataSourceAutoConfiguration;
 import org.springframework.cloud.client.discovery.EnableDiscoveryClient;
 import org.springframework.cloud.openfeign.EnableFeignClients;
 import org.springframework.context.annotation.ComponentScan;
@@ -10,15 +10,14 @@ import org.springframework.context.annotation.ComponentScan;
 /**
  * @Description:
  * @Author: pront
- * @Time:2023-01-20 20:36
+ * @Time:2023-04-12 11:49
  */
-@SpringBootApplication
-@ComponentScan("priv.pront")
-@MapperScan("priv.pront.yyph.order.mapper")
+@SpringBootApplication(exclude = DataSourceAutoConfiguration.class)
 @EnableDiscoveryClient
 @EnableFeignClients(basePackages = {"priv.pront"})
-public class ServiceOrderApplication {
+@ComponentScan(basePackages = {"priv.pront"})
+public class ServiceStatisticsApplication {
     public static void main(String[] args) {
-        SpringApplication.run(ServiceOrderApplication.class, args);
+        SpringApplication.run(ServiceStatisticsApplication.class, args);
     }
 }

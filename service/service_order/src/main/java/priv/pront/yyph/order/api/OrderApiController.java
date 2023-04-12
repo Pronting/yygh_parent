@@ -10,10 +10,12 @@ import priv.pront.yygh.common.result.Result;
 import priv.pront.yygh.common.util.AuthContextHolder;
 import priv.pront.yygh.enums.OrderStatusEnum;
 import priv.pront.yygh.model.order.OrderInfo;
+import priv.pront.yygh.vo.order.OrderCountQueryVo;
 import priv.pront.yygh.vo.order.OrderQueryVo;
 import priv.pront.yyph.order.service.OrderService;
 
 import javax.servlet.http.HttpServletRequest;
+import java.util.Map;
 
 /**
  * @Description:
@@ -62,6 +64,12 @@ public class OrderApiController {
     public Result cancelOrder(@PathVariable Long orderId) {
         Boolean isOrder = orderService.cancelOrder(orderId);
         return Result.ok(isOrder);
+    }
+
+    @ApiOperation("获取订单统计数量")
+    @PostMapping("inner/getCountMap")
+    public Map<String, Object> getCountMap(@RequestBody OrderCountQueryVo orderCountQueryVo) {
+        return orderService.getCountMap(orderCountQueryVo);
     }
 
 
