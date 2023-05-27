@@ -115,7 +115,7 @@
 ![进行支付](./readme/k.png)
 
 ### 退单流程
-> 退单逻辑在`OrderService-cancelOrder`, 可自行将时间限定注释打开
+> 退单逻辑在`OrderService-cancelOrder`, 可自行将时间限定注释打开。
 ![进行支付](./readme/l.png)
 
 
