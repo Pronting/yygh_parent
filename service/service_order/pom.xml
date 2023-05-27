@@ -21,6 +21,12 @@
 
         <dependency>
             <groupId>priv.pront</groupId>
+            <artifactId>hospital_manager</artifactId>
+            <version>0.0.1-SNAPSHOT</version>
+        </dependency>
+
+        <dependency>
+            <groupId>priv.pront</groupId>
             <artifactId>service_user_client</artifactId>
             <version>1.0</version>
         </dependency>
